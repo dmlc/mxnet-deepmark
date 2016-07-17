@@ -43,17 +43,4 @@ def get_symbol():
     fc = mx.sym.FullyConnected(dp2, num_hidden=101)
     sm = mx.sym.SoftmaxOutput(fc, name="softmax")
 
-
-    _, out, __ = pool4.infer_shape(data=(30,3,16,112,112))
-    print(out)
-    return sm
-
-
-if __name__ == "__main__":
-    net = get_symbol()
-    _, out, __ = net.infer_shape(data=(30,3,16,112,112))
-    print(out)
-
-
-
-
+    return sm,  [('data', (32,3,16,112,112))], [('softmax_label', (32,))]

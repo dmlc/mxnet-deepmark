@@ -58,25 +58,4 @@ def get_symbol(net_type='D'):
     net = mx.sym.FullyConnected(net, num_hidden=1000)
     # TODO(xxx): Test speed difference between SoftmaxActivation and SoftmaxOutput
     net = mx.sym.SoftmaxOutput(net, name="softmax")
-    return net
-
-def get_module(ctx, is_train, is_memonger, batch_size):
-    sym = get_symbol()
-    dshape = (batch_size, 3, 224, 224)
-    if is_memonger:
-        sym = search_plan(sym, data=dshape)
-    mod = mx.mod.Module(symbol=sym,
-                        data_names=("data",),
-                        label_names=("softmax_label",),
-                        context=ctx)
-    if is_train:
-        mod.bind(data_shapes=[("data", dshape)], for_training=True, inputs_need_grad=False)
-    else:
-        mod.bind(data_shapes=[("data", dshape)], for_training=False, inputs_need_grad=False)
-    mod.init_params(initializer=mx.init.Xavier(magnitude=2.))
-    return mod
-
-
-
-if __name__ == "__main__":
-    mod = get_module(ctx=mx.gpu(), is_train=True, is_memonger=True, batch_size=128)
+    return net, [('data', (64, 3, 224, 224))], [('softmax_label', (64,))]

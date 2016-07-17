@@ -24,7 +24,7 @@ def ResModule(sym, base_filter, stage, layer, fix_gamma=True):
     sym._set_attr(mirror_stage='True')
     return sum_sym
 
-def get_symbol(layers):
+def get_symbol(layers=[3, 4, 6, 3]):
     """Get a 4-stage residual net, with configurations specified as layers.
 
     Parameters
@@ -45,4 +45,4 @@ def get_symbol(layers):
     flatten = mx.symbol.Flatten(data=avg, name='flatten')
     fc1 = mx.symbol.FullyConnected(data=flatten, num_hidden=1000, name='fc1')
     net = mx.symbol.SoftmaxOutput(data=fc1, name='softmax')
-    return net
+    return net, [('data', (64, 3, 224, 224))], [('softmax_label', (64,))]

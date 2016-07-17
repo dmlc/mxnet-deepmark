@@ -173,26 +173,5 @@ def get_symbol(num_classes=1008):
     flatten = mx.sym.Flatten(data=pool, name="flatten")
     fc1 = mx.symbol.FullyConnected(data=flatten, num_hidden=num_classes, name='fc1')
     softmax = mx.symbol.SoftmaxOutput(data=fc1, name='softmax')
-    return softmax
 
-
-def get_module(ctx, is_train, is_memonger, batch_size):
-    sym = get_symbol()
-    dshape = (batch_size, 3, 299, 299)
-    if is_memonger:
-        sym = search_plan(sym, data=dshape)
-    mod = mx.mod.Module(symbol=sym,
-                        data_names=("data",),
-                        label_names=("softmax_label",),
-                        context=ctx)
-    if is_train:
-        mod.bind(data_shapes=[("data", dshape)], for_training=True, inputs_need_grad=False)
-    else:
-        mod.bind(data_shapes=[("data", dshape)], for_training=False, inputs_need_grad=False)
-    mod.init_params(initializer=mx.init.Xavier(magnitude=2.))
-    return mod
-
-
-
-if __name__ == "__main__":
-    mod = get_module(ctx=mx.gpu(), is_train=True, is_memonger=True, batch_size=128)
+    return softmax, [('data', (32, 3, 299, 299))], [('softmax_label', (32,))]
