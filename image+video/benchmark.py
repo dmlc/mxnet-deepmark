@@ -29,8 +29,7 @@ def get_module(ctx, sym, provide_data, provide_label, batch_size=None, is_train=
         mod.bind(data_shapes=provide_data, label_shapes=provide_label, for_training=False, inputs_need_grad=False)
 
     mod.init_params(initializer=mx.init.Xavier(magnitude=2.))
-    mod.init_optimizer(kvstore='device',
-                       optimizer='ccsgd',
+    mod.init_optimizer(optimizer='ccsgd',
                        optimizer_params={
                             'learning_rate': 0.0001,
                             'momentum': 0.0,
@@ -76,7 +75,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=None,
                         help='Optionally override the default batch size')
     args = parser.parse_args()
-    
+
     net = importlib.import_module(args.network)
     sym, provide_data, provide_label = net.get_symbol()
     ctx = [mx.gpu(int(i)) for i in args.gpu.strip().split(',')]
