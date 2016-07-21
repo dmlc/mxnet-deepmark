@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+import os
+os.environ["MXNET_CUDNN_AUTOTUNE_DEFAULT"] = "1"
+
 import argparse
 import importlib
 import mxnet as mx
