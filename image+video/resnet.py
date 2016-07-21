@@ -1,13 +1,13 @@
 import mxnet as mx
 import math
 
-def ConvModule(sym, num_filter, kernel, pad=(0, 0), stride=(1, 1), fix_gamma=True):
+def ConvModule(sym, num_filter, kernel, pad=(0, 0), stride=(1, 1), fix_gamma=False):
     conv = mx.sym.Convolution(data=sym, kernel=kernel, stride=stride, pad=pad, num_filter=num_filter)
     bn = mx.sym.BatchNorm(data=conv, fix_gamma=fix_gamma)
-    act = mx.sym.LeakyReLU(data=bn, act_type="leaky") # same memory to our act, less than CuDNN one
+    act = mx.sym.Activation(data=bn, act_type="relu") # same memory to our act, less than CuDNN one
     return act
 
-def ResModule(sym, base_filter, stage, layer, fix_gamma=True):
+def ResModule(sym, base_filter, stage, layer, fix_gamma=False):
     num_f = base_filter * int(math.pow(2, stage))
     s = 1
     if stage != 0 and layer == 0:
