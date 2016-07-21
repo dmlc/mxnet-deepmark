@@ -60,9 +60,9 @@ def benchmark(mod, dry_run=10, iterations=10):
     for i in range(iterations):
         mod.forward(batch, is_train=True)
         mod.backward()
+        mod.update()
         for output in mod.get_outputs(merge_multi_context=False)[0]:
             output.wait_to_read()
-        mod.update()
 
     return (time.time()-tic)*1000.0/iterations
 
