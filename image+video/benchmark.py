@@ -16,7 +16,8 @@ except:
     sys.path.append("../utils/")
     from memonger import search_plan
 
-def get_module(ctx, sym, provide_data, provide_label, batch_size=None, is_train=True, use_memonger=False):
+def get_module(ctx, sym, provide_data, provide_label, batch_size=None, kvstore=None,
+    is_train=True, use_memonger=False):
     if use_memonger:
         sym = search_plan(sym, data=data_shapes)
     mod = mx.mod.Module(symbol=sym,
@@ -32,7 +33,8 @@ def get_module(ctx, sym, provide_data, provide_label, batch_size=None, is_train=
         mod.bind(data_shapes=provide_data, label_shapes=provide_label, for_training=False, inputs_need_grad=False)
 
     mod.init_params(initializer=mx.init.Xavier(magnitude=2.))
-    mod.init_optimizer(optimizer='ccsgd',
+    mod.init_optimizer(kvstore=kvstore,
+                       optimizer='ccsgd',
                        optimizer_params={
                             'learning_rate': 0.0001,
                             'momentum': 0.0,
@@ -75,12 +77,16 @@ if __name__ == '__main__':
                         help='Network to run. Should be one of alexnet|vgg|resnet|inceptionv3|c3d')
     parser.add_argument('--gpu', type=str, default='0',
                         help='The gpu to run on. Multiple gpus should be separated by ,')
-    parser.add_argument('--batch_size', type=int, default=None,
+    parser.add_argument('--batch-size', type=int, default=None,
                         help='Optionally override the default batch size')
+    parser.add_argument('--kvstore', type=str, default='device',
+                        choices=['device', 'local_update_cpu', 'local_allreduce_cpu'],
+                        help='How data are aggregated over multi-GPUs')
     args = parser.parse_args()
 
     net = importlib.import_module(args.network)
     sym, provide_data, provide_label = net.get_symbol()
     ctx = [mx.gpu(int(i)) for i in args.gpu.strip().split(',')]
-    mod = get_module(ctx, sym, provide_data, provide_label, batch_size=args.batch_size)
+    mod = get_module(ctx, sym, provide_data, provide_label,
+                     kvstore=args.kvstore, batch_size=args.batch_size)
     print benchmark(mod)
