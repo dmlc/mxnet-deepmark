@@ -10,7 +10,8 @@ python benchmark.py --network alexnet --batch-size 32 --gpus 0
 ```
 
 It will output the time (in ms) for running a single iteration (forward +
-backward + parameter update).
+backward + parameter update). So the images processed per second can be obtained
+by `bath_size / time_in_ms * 1000`.
 
 To run on GPU 0, 1, 2, and 3, we can
 
