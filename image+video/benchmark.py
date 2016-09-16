@@ -75,18 +75,18 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Benchmark MXNet performance.')
     parser.add_argument('--network', type=str, default='vgg',
                         help='Network to run. Should be one of alexnet|vgg|resnet|inceptionv3|c3d')
-    parser.add_argument('--gpu', type=str, default='0',
-                        help='The gpu to run on. Multiple gpus should be separated by ,')
+    parser.add_argument('--gpus', type=str, default='0',
+                        help='The gpus to run on. Multiple gpus should be separated by ,')
     parser.add_argument('--batch-size', type=int, default=None,
                         help='Optionally override the default batch size')
-    parser.add_argument('--kvstore', type=str, default='device',
+    parser.add_argument('--kv-store', type=str, default='device',
                         choices=['device', 'local_update_cpu', 'local_allreduce_cpu'],
                         help='How data are aggregated over multi-GPUs')
     args = parser.parse_args()
 
     net = importlib.import_module(args.network)
     sym, provide_data, provide_label = net.get_symbol()
-    ctx = [mx.gpu(int(i)) for i in args.gpu.strip().split(',')]
+    ctx = [mx.gpu(int(i)) for i in args.gpus.strip().split(',')]
     mod = get_module(ctx, sym, provide_data, provide_label,
-                     kvstore=args.kvstore, batch_size=args.batch_size)
+                     kvstore=args.kv_store, batch_size=args.batch_size)
     print benchmark(mod)

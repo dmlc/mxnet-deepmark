@@ -1,2 +1,3 @@
 # mxnet-deepmark
-Benchmark speed and other issues internally, before push to deep-mark
+
+[Deepmark](https://github.com/DeepMark/deepmark) on MXNet.
